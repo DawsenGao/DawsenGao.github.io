@@ -1,57 +1,59 @@
-# Welcome to Jekyll!
-#
-# This config file is meant for settings that affect your whole blog, values
-# which you are expected to set up once and rarely need to edit after that.
-# For technical reasons, this file is *NOT* reloaded automatically when you use
-# 'jekyll serve'. If you change this file, please restart the server process.
-
 # Site settings
-title: dawsen
-brief-intro: Linux Engineer
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "http://dawsengao.github.io" # the base hostname & protocol for your site
+title: 个人博客
+email: dawsen_gao@163.com
+description: > #个人博客
+baseurl: "" # the subpath of your site, e.g. /blog/
+url: "http://dawsengao.github.io/index.html" # the base hostname & protocol for your site
 
-permalink: /:year/:month/:day/:title/
+# Paginate（分页）
+#gems: [jekyll-paginate]
+# 分页时每页博文数量
+#paginate: 10
+#paginate_path: "page:num"
 
-# other links
-twitter_username: 
-facebook_username: 
-github_username:  
-email: 
-
-
-#description_footer: 嵌入式
-
-# comments
-# two ways to comment, only choose one, and use your own short name
-# 两种评论插件，选一个就好了，使用自己的 short_name
-# duoshuo_shortname: 
-disqus_shortname: 
-
-# statistic analysis 统计代码
-# 百度统计 id，将统计代码替换为自己的百度统计id，即
-# hm.src = "//hm.baidu.com/hm.js?xxxxxxxxxxxx";
-# xxxxx字符串
-baidu_tongji_id: 
-google_analytics_id: # google 分析追踪id
 
 # Build settings
-markdown: kramdown
-
+# 语法高亮
+#highlighter: pygments
+# markdown解释器
+#markdown: kramdown
 kramdown:
   input: GFM
   syntax_highlighter: rouge
 
-# port
-# port: 1234
+#relative_permalinks: true
+#博文的链接样式
+permalink: /:year-:month-:day-:title.html
 
-# url
-category_dir: category/
-tag_dir: tag/
+favicon: /assets/image/favicon.ico
 
-# excerpt
-excerpt_separator: "\n\n\n\n"
+# 博客作者相关
+author:
+  name: Gaodong Sheng
+  email: dawsen_gao@163.com
+  github: https://github.com/dawsengao
+  github_username: dawsengao
 
-# paginate
-gems: [jekyll-paginate]
-paginate: 10
+
+locals:
+  tags: 标签
+  about: 关于
+  active: 技术
+subscribe_rss: /pages/atom.xml
+
+# 头像
+#avatar: /assets/image/avatar.png
+# avatar: http://7xpapo.com1.z0.glb.clouddn.com/blog/assets/image/favicon.ico
+# 网站CSS路径
+css: /assets/css/
+# css: http://7xpapo.com1.z0.glb.clouddn.com/blog/assets/css/
+# 网站JS路径
+js: /assets/js/
+# js: http://7xpapo.com1.z0.glb.clouddn.com/blog/assets/js/
+# 网站图片路径
+image: /assets/image/
+# image: http://7xpapo.com1.z0.glb.clouddn.com/blog/assets/image/
+
+# disqus 设置
+disqus:
+  shortname: 
