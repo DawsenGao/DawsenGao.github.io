@@ -5,14 +5,20 @@ description: MTK SDK wifi参数生效过程
 category: MTK
 ---
 
-由于一直做QCA方案的路由，对于MTK wifi的一些配置流程不熟悉。标准luci的无线配置使用配置文件/etc/config/wireless，之后如何配置生效？对于qca，使用的是qcawifi.sh脚本生效配置，而mtk的无线驱动使用mtxxxx.dat配置文件,这个.dat文件需要uci2dat来将/etc/config/wireless配置进行转化
+由于一直做QCA方案的路由，对于MTK wifi的一些配置流程不熟悉。这里简单追下，无线参数生效的过程。
 
-## 一般我们通过直接修改/etc/config/wireless脚本来更改无线配置，修改后执行/etc/init.d/network restart来生效配置
-1./etc/init.d/network
-```
+一般页面修改无线参数后，会将对应参数配置到/etc/config/wireless，然后执行/etc/init.d/network restart/reload。
+
+对于qca，使用的是qcawifi.sh脚本生效配置，而mtk的无线驱动使用mtxxx.dat配置文件来生效相关的无线配置,这个.dat文件是通过uci2dat将/etc/config/wireless配置进行转化的。
+
+从执行/etc/init.d/network restart开始，关注无线相关的配置过程
+
+1./etc/init.d/network文件中，执行restart函数
+
+```shell
 restart() {         
-        rmmod hw_nat
-        rmmod nf_sc
+        rmmod hw_nat 
+        rmmod nf_sc 
         ifdown -a   
         sleep 1     
         trap '' TERM                
@@ -21,41 +27,110 @@ restart() {
         #insmod /lib/modules/ralink/hw_nat.ko
         insmod /lib/modules/ralink/nf_sc.ko
 } 
-在start函数中调用执行 /sbin/wifi reload_legacy 
 ```
-2./sbin/wifi文件中
+2. 调用service_running函数
+
+```
+service_running() {
+        rmmod hw_nat
+        rmmod nf_sc
+        ubus -t 30 wait_for network.interface
+        /sbin/wifi reload_legacy                      
+        sleep 3                 
+        init_switch
+        insmod /lib/modules/ralink/hw_nat.ko
+        insmod /lib/modules/ralink/nf_sc.ko 
+        mii_mgr -s -p 0 -r 0 -v 3300       
+        mii_mgr -s -p 1 -r 0 -v 3300
+        mii_mgr -s -p 2 -r 0 -v 3300
+        mii_mgr -s -p 3 -r 0 -v 3300
+}        
+```
+
+3. 执行/sbin/wifi reload_legacy ,调用wifi_reload_legacy函数
+
 ```
 reload_legacy) wifi_reload_legacy "$2";;
 ```
-下面的函数
+
+4. /sbin/wifi文件中
+
 ```
 wifi_reload_legacy() {              
         _wifi_updown "disable" "$1"
         scan_wifi
         _wifi_updown "enable" "$1"             
 }
+```
 
+5. 执行_wifi_updown "enable"
+
+```
 _wifi_updown() {    
+		#这里介绍下shell的:-句法，${2:-$DEVICES}实际的值等于$DEVICES的值
+		#$DEVICES有赋值，我这里是mt7628 mt7612e
         for device in ${2:-$DEVICES}; do (
                 config_get disabled "$device" disabled
                 [ 1 == "$disabled" ] && {             
                         echo "'$device' is disabled"
                         set disable
                 }                                                         
-                config_get iftype "$device" type              
+                config_get iftype "$device" type  
+                #typ=mt7628 mt7612e
                 if eval "type ${1}_$iftype" 2>/dev/null >/dev/null; then
-                        eval "scan_$iftype '$device'"            
+                        eval "scan_$iftype '$device'"  
+                        #调用scan_mt7628 7628 或 scan_mt7612e mt7612e
+                  
                         eval "${1}_$iftype '$device'" || echo "$device($iftype): ${1} failed"
+                        #调用 enable_mt7628  mt7628 或enable_mt7612e  mt7612e
+                        
                 elif [ ! -f /lib/netifd/wireless/$iftype.sh ]; then
                         echo "$device($iftype): Interface type not supported"
                 fi                        
         ); done       
 }
+
 ```
-3. 最终调用的/lib/wifi/mt7628.sh
+6. 调用的/lib/wifi/mt7628.sh和mt7612e.sh
 
+```
+scan_mt7628() {
+        scan_ralink_wifi mt7628 mt7628
+}
+enable_mt7628() {
+        enable_ralink_wifi mt7628 mt7628
+}
+```
 
-## 下面可以看到uci2dat的使用方法，及/etc/config/wireless配置的uci option对应于.dat文件的无线参数
+7. /lib/wifi/ralink_common.sh函数
+
+```
+scan_ralink_wifi() {                                                 
+    local device="$1"                                              
+    local module="$2"                                    
+    echo "scan_ralink_wifi($1,$2,$3,$4)" >>/tmp/wifi.log  
+    repair_wireless_uci                                            
+    sync_uci_with_dat $device /etc/wireless/$device/$device.dat    
+} 
+```
+
+8. sync_uci_with_dat函数中调用uci2dat生成配置文件
+
+```
+sync_uci_with_dat() {                                              
+    echo "sync_uci_with_dat($1,$2,$3,$4)" >>/tmp/wifi.log          
+    local device="$1"                                              
+    local datpath="$2"                                             
+    uci2dat -d $device -f $datpath > /tmp/uci2dat.log  
+    #uci2dat -d mt7628 -f /etc/wireless/mt7628/mt7628.dat
+    #uci2dat -d mt7612e -f /etc/wireless/mt7612e/mt7612e.dat
+} 
+```
+
+## 
+
+下面可以看到uci2dat的使用方法，及/etc/config/wireless配置的uci option对应于.dat文件的无线参数,通过对应的关系，指导我们在/etc/config/wirless文件配置中如何配置相应的参数！
+
 ```
 root@OpenWrt:/# uci2dat 
 uci2dat  -- a tool to translate uci config (/etc/config/wireless)
