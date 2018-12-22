@@ -13,7 +13,7 @@ category: MTK
 
 从执行/etc/init.d/network restart开始，关注无线相关的配置过程
 
-1. /etc/init.d/network文件中，执行restart函数
+1./etc/init.d/network文件中，执行restart函数
 
 ```shell
 restart() {         
@@ -28,7 +28,7 @@ restart() {
         insmod /lib/modules/ralink/nf_sc.ko
 } 
 ```
-2. 调用service_running函数
+2.调用service_running函数
 
 ```
 service_running() {
@@ -47,13 +47,13 @@ service_running() {
 }        
 ```
 
-3. 执行/sbin/wifi reload_legacy ,调用wifi_reload_legacy函数
+3.执行/sbin/wifi reload_legacy ,调用wifi_reload_legacy函数
 
 ```
 reload_legacy) wifi_reload_legacy "$2";;
 ```
 
-4. /sbin/wifi文件中
+4./sbin/wifi文件中
 
 ```
 wifi_reload_legacy() {              
@@ -63,7 +63,7 @@ wifi_reload_legacy() {
 }
 ```
 
-5. 执行_wifi_updown "enable"
+5.执行_wifi_updown "enable"
 
 ```
 _wifi_updown() {    
@@ -91,7 +91,7 @@ _wifi_updown() {
 }
 
 ```
-6. 调用的/lib/wifi/mt7628.sh和mt7612e.sh
+6.调用的/lib/wifi/mt7628.sh和mt7612e.sh
 
 ```
 scan_mt7628() {
@@ -102,7 +102,7 @@ enable_mt7628() {
 }
 ```
 
-7. /lib/wifi/ralink_common.sh函数
+7./lib/wifi/ralink_common.sh函数
 
 ```
 scan_ralink_wifi() {                                                 
@@ -114,7 +114,7 @@ scan_ralink_wifi() {
 } 
 ```
 
-8. sync_uci_with_dat函数中调用uci2dat生成配置文件
+8.sync_uci_with_dat函数中调用uci2dat生成配置文件
 
 ```
 sync_uci_with_dat() {                                              
