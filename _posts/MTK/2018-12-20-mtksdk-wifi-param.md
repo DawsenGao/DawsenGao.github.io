@@ -13,7 +13,7 @@ category: MTK
 
 从执行/etc/init.d/network restart开始，关注无线相关的配置过程
 
-1./etc/init.d/network文件中，执行restart函数
+1. /etc/init.d/network文件中，执行restart函数
 
 ```shell
 restart() {         
@@ -127,7 +127,6 @@ sync_uci_with_dat() {
 } 
 ```
 
-## 
 
 下面可以看到uci2dat的使用方法，及/etc/config/wireless配置的uci option对应于.dat文件的无线参数,通过对应的关系，指导我们在/etc/config/wirless文件配置中如何配置相应的参数！
 
