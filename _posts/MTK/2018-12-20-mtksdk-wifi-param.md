@@ -298,3 +298,20 @@ Supported keywords:
 151. cipher
 152. key
 ```
+
+9.前面是生成无线驱动的相关配置文件，配置文件在/etc/wireless文件夹中。为什么生成在这里，将文件放在其它地方可以？答案是可以的，但是需要修改无线驱动的相关代码！
+
+当生成xx.dat文件，会重新加载无线驱动，这样驱动会重新加载相关的配置文件，这新设置的相关无线参数才可以生效。
+
+在embedded/os/linux/rt_profile.c文件中发现相关的宏定义！
+
+```
+  62 #if defined(CONFIG_SUPPORT_OPENWRT)
+  63 #define FIRST_AP_PROFILE_PATH       "/etc/wireless/mt7628/mt7628.dat"
+  64 #else
+  65 #define FIRST_AP_PROFILE_PATH       "/etc/Wireless/RT2860/RT2860.dat"
+  66 #endif /* CONFIG_SUPPORT_OPENWRT */
+  67 #define FIRST_CHIP_ID   xdef_to_str(CONFIG_RT_FIRST_CARD)
+```
+
+余下的驱动中加载配置文件的相关过程，这里就不追代码了。
