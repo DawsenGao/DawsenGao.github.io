@@ -55,5 +55,5 @@ image: /assets/image/
 # image: http://7xpapo.com1.z0.glb.clouddn.com/blog/assets/image/
 
 # disqus 设置
-disqus:
-  shortname: 
+#disqus:
+#  shortname: 
